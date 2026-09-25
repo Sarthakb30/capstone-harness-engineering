@@ -1,0 +1,4 @@
+Warm-tier total: 0
+April defects returned: 0
+Query plan:
+(7, 0, 0, 'SEARCH defects USING INDEX idx_defects_ts (ts>?)')
