@@ -8,7 +8,7 @@
 
 - Model(s): Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) for System 1; System 2 used the configured Anthropic model; Systems 3–4 were primarily local/CLI validation and recorded-response execution.
 - OS / Python: Linux/WSL environment; Python 3.13.0.
-- Approx. API spend: System 1 estimated total cost **$0.1096**; System 2 API usage is recorded in `budget.json`; Systems 3–4 used local validation/recorded responses.
+- Approx. API spend: System 1 estimated total cost **$0.1240**; System 2 API usage is recorded in `budget.json`; Systems 3–4 used local validation/recorded responses.
 
 ---
 
@@ -18,19 +18,19 @@
 
 1. **Loop control.**
 
-→ In `evidence/system1/20260925_045024/traces/claim_04_neighbor_injury.jsonl`, the `stop_reason` sequence is `tool_use → tool_use → tool_use → tool_use → end_turn`. The continue-vs-stop decision is implemented in `claims_intake/loop.py`, function `run()`. When Claude returns `tool_use`, the loop executes the requested tool and continues; when Claude returns `end_turn`, the loop terminates. This makes termination depend on the model/tool protocol rather than a fixed number of turns.
+→ In `evidence/system1/20260927_093025/traces/claim_04_neighbor_injury.jsonl`, the `stop_reason` sequence is `tool_use → tool_use → tool_use → tool_use → end_turn`. The continue-vs-stop decision is implemented in `claims_intake/loop.py`, function `run()`. When Claude returns `tool_use`, the loop executes the requested tool and continues; when Claude returns `end_turn`, the loop terminates. This makes termination depend on the model/tool protocol rather than a fixed number of turns.
 
 2. **Anti-pattern.**
 
-→ The anti-pattern is a **hard-coded integer iteration cap**, checked by `test_no_integer_literal_iteration_cap_in_loop`. A fixed turn limit could terminate a legitimate claim before the required facts, classification, or routing decision had been completed. `claim_04_neighbor_injury` required **5 turns**, so an unnecessarily low cap could have stopped it before routing. The System 1 test suite passed **29 tests**.
+→ The anti-pattern is a **hard-coded integer iteration cap**, checked by `test_no_integer_literal_iteration_cap_in_loop`. A fixed turn limit could terminate a legitimate claim before the required facts, classification, or routing decision had been completed. `claim_04_neighbor_injury` required **4 turns**, so an unnecessarily low cap could have stopped it before routing. The System 1 test suite passed **29 tests**.
 
 3. **Tool design.**
 
-→ Two related claim tools are fact recording and claim classification because both operate on information from the same claim. Their structured descriptions and schemas separate their responsibilities: fact recording stores extracted claim information, while classification determines the claim type/severity from the available facts. A structured tool error preserves machine-readable error information so the loop can recognize a failed tool operation and decide whether another action is needed, whereas a generic string provides less reliable information for recovery. The relevant behavior is covered by the System 1 test suite and the traces under `evidence/system1/20260925_045024/traces/`.
+→ Two related claim tools are fact recording and claim classification because both operate on information from the same claim. Their structured descriptions and schemas separate their responsibilities: fact recording stores extracted claim information, while classification determines the claim type/severity from the available facts. A structured tool error preserves machine-readable error information so the loop can recognize a failed tool operation and decide whether another action is needed, whereas a generic string provides less reliable information for recovery. The relevant behavior is covered by the System 1 test suite and the traces under `evidence/system1/20260927_093025/traces/`.
 
 4. **Your numbers.**
 
-→ `claim_04_neighbor_injury` used **5 turns** and had an estimated cost of **$0.0215**, according to `evidence/system1/20260925_045024/summary.md`. The complete run processed **8 fixtures** with an estimated total cost of **$0.1096**. The live turn count differs from a simple README example because the actual Claude response determines how many `tool_use` iterations are required before `end_turn`.
+→ `claim_04_neighbor_injury` used **4 turns** and had an estimated cost of **$0.0192**, according to `evidence/system1/20260927_093025/summary.md`. The complete run processed **8 fixtures** with an estimated total cost of **$0.1240**. The live turn count differs from a simple README example because the actual Claude response determines how many `tool_use` iterations are required before `end_turn`.
 
 ### System 2 — Context strategy
 
@@ -80,7 +80,7 @@
 
 14. **Three layers.**
 
-→ **Model:** `claims_intake/loop.py` and `evidence/system1/20260925_045024/traces/claim_04_neighbor_injury.jsonl` show Claude responses driving tool execution through `stop_reason`.
+→ **Model:** `claims_intake/loop.py` and `evidence/system1/20260927_093025/traces/claim_04_neighbor_injury.jsonl` show Claude responses driving tool execution through `stop_reason`.
 
 → **Harness:** `CLAUDE.md`, `.claude/rules/`, and `.claude/skills/deploy-check/SKILL.md` define repository instructions, scoped rules, commands, and permission boundaries around model work.
 
